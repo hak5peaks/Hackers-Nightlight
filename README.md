@@ -36,7 +36,7 @@ With many open source firmwares public on github such as https://github.com/risi
 
 Searching Amazon endless for models using ESP32 chips within their hardware I stumbled upon Vonts Smart Light Pro. 
 
-This model of smart light specifically uses a ESP32-C2 with 4 MB of flash. Using these GPIO pins for light control: 
+This model of smart light specifically uses a ESP32-C3 with 4 MB of flash. Using these GPIO pins for light control: 
 
 
 GPIO03    PWM_i 5    Warm White
