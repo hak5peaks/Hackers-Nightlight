@@ -59,7 +59,7 @@ By exploiting the appropriate firmware, an attacker can readily implant a backdo
 
 Using a $7 USB to TTL on amazon we can connect the TX to RX together on the TTL USB while also grounding IO9
 
-[pictures]
+![Capture22](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/7d2a8d30-3ea9-43a4-a269-bcbafb421ee9)
 
 Once connected we are able to read and write to the flash 
 
