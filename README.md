@@ -52,6 +52,17 @@ By exploiting the appropriate firmware, an attacker can readily implant a backdo
 
 (Old Amazon Link https://www.amazon.com/dp/B09K38ZXYG)
 
+# Soldering Uart connections
+
+Using a $7 USB to TTL on amazon we can connect the TX to RX together on the TTL USB while also grounding IO9
+
+[pictures]
+
+Once connected we are able to read and write to the flash 
+
+(USB to TTL: https://www.amazon.com/dp/B00LODGRV8)
+
+
 # [Big thanks to https://github.com/Spooks4576 for assisting in the creation of the firmware]
 
 
