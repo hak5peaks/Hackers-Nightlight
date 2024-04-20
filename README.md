@@ -11,7 +11,7 @@ WiFi-connected smart lights are modern lighting solutions that you can control w
 lights often use simple WiFi-enabled microcontrollers to manage connections and control the LED arrays. These microcontrollers are like tiny computers embedded within the smart light system. They handle tasks such as connecting to your home WiFi network, communicating with your smartphone or other devices, and controlling the LEDs
 
 ![Untitled-5](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/72595671-05d8-4ed1-a157-279d740cc9cb)
-
+                (Govee ‎B60081C3)
 
 Different models of lights will use different microcontrollers for these operations. Certain microcontrollers possess the capability to perform WiFi network penetration or exploitation.
 One model is the ESP32-C2. Capability of doing such this such as 
