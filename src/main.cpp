@@ -12,5 +12,6 @@ void setup() {
 }
 
 void loop() {
+  SystemManager::getInstance().loop();
   delay(100);
 }
