@@ -21,7 +21,7 @@ ESP_EVENT_DECLARE_BASE(SNIFFER_EVENTS);
 class wifi_controller
 {
 public:
-    void string_to_uint8(const char *str, uint8_t *array, size_t array_size);
+    uint8_t* string_to_uint8(const char *str, size_t array_size);
     void wifictl_ap_start(wifi_config_t *wifi_config);
     void wifictl_ap_stop();
     void wifictl_mgmt_ap_start();

@@ -5,6 +5,8 @@
 #include <components/pcap_serializer/pcap_serializer.h>
 #include <components/webserver/webserver.h>
 #include <components/wifi_controller/wifi_controller.h>
+#include <WiFi.h>
+#include "main/attack.h"
 
 void SystemManager::SetupSystem()
 {
@@ -14,7 +16,9 @@ void SystemManager::SetupSystem()
     pcapInterface = new pcap_serializer();
     webinterface = new WebServer();
     wificontrollerInterface = new wifi_controller();
-
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    wificontrollerInterface->wifictl_mgmt_ap_start();
+    attack_init();
     webinterface->webserver_run();
 }
 

@@ -59,18 +59,17 @@ void attack_method_rogueap(const wifi_ap_record_t *ap_record){
     ESP_LOGD(TAG, "Configuring Rogue AP");
     SystemManager::getInstance().wificontrollerInterface->wifictl_set_ap_mac(ap_record->bssid);
 
-    uint8_t password[64];
-
-    SystemManager::getInstance().wificontrollerInterface->string_to_uint8("dummypassword", password, strlen("dummypassword"));
-
     wifi_config_t ap_config = {
         .ap = {
-            .password = {*password},
+            .password = {0},
             .ssid_len = strlen((char *)ap_record->ssid),
             .channel = ap_record->primary,
             .authmode = ap_record->authmode
         },
     };
+
+    strncpy((char *)ap_config.ap.password, "dummypassword", sizeof(ap_config.ap.password) - 1);
+
     mempcpy(ap_config.sta.ssid, ap_record->ssid, 32);
     SystemManager::getInstance().wificontrollerInterface->wifictl_ap_start(&ap_config);
 }

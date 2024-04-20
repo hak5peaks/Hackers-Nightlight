@@ -2,6 +2,33 @@
 #include <Arduino.h>
 #include <esp_wifi.h>
 
+#define CONFIG_MGMT_AP_SSID "PeakzChangePlz"
+#define CONFIG_MGMT_AP_PASSWORD "PeakzStrongPassword"
+
+ESP_EVENT_DEFINE_BASE(SNIFFER_EVENTS);
+
+void wifi_controller::frame_handler(void *buf, wifi_promiscuous_pkt_type_t type) {
+    ESP_LOGV(TAG, "Captured frame %d.", (int) type);
+
+    wifi_promiscuous_pkt_t *frame = (wifi_promiscuous_pkt_t *) buf;
+
+    int32_t event_id;
+    switch (type) {
+        case WIFI_PKT_DATA:
+            event_id = SNIFFER_EVENT_CAPTURED_DATA;
+            break;
+        case WIFI_PKT_MGMT:
+            event_id = SNIFFER_EVENT_CAPTURED_MGMT;
+            break;
+        case WIFI_PKT_CTRL:
+            event_id = SNIFFER_EVENT_CAPTURED_CTRL;
+            break;
+        default:
+            return;
+    }
+
+    ESP_ERROR_CHECK(esp_event_post(SNIFFER_EVENTS, event_id, frame, frame->rx_ctrl.sig_len + sizeof(wifi_promiscuous_pkt_t), portMAX_DELAY));
+}
 
 void wifi_controller::wifictl_scan_nearby_aps(){
     Serial.println("Scanning nearby APs...");
@@ -132,32 +159,37 @@ void wifi_controller::wifictl_ap_stop(){
     Serial.println("AP stopped");
 }
 
-void wifi_controller::string_to_uint8(const char *str, uint8_t *array, size_t array_size)
+uint8_t* wifi_controller::string_to_uint8(const char *str, size_t array_size)
 {
+    // Allocate memory for the array
+    uint8_t* result = (uint8_t*)malloc(array_size * sizeof(uint8_t));
+    if (result == NULL) {
+        // Handle memory allocation failure
+        return NULL;
+    }
+
     size_t i;
     for (i = 0; i < array_size - 1 && str[i] != '\0'; ++i) {
-        array[i] = (uint8_t)str[i];
+        result[i] = (uint8_t)str[i];
     }
     // Make sure the array is properly terminated with '\0'
-    array[i] = '\0';
+    result[i] = '\0';
+
+    return result;
 }
 
 void wifi_controller::wifictl_mgmt_ap_start(){
-
-    uint8_t ssid[32];
-    uint8_t password[64];
-
-    string_to_uint8(CONFIG_MGMT_AP_SSID, ssid, strlen(CONFIG_MGMT_AP_SSID));
-    string_to_uint8(CONFIG_MGMT_AP_PASSWORD, password, strlen(CONFIG_MGMT_AP_PASSWORD));
-
     wifi_config_t mgmt_wifi_config = {
     .ap = {
-        .ssid = {*ssid},
-        .password = {*password},
+        .ssid = {0},
+        .password = {0},
         .ssid_len = strlen(CONFIG_MGMT_AP_SSID),
         .authmode = WIFI_AUTH_WPA2_PSK
     }
 };
+
+    strncpy((char *)mgmt_wifi_config.ap.ssid, CONFIG_MGMT_AP_SSID, sizeof(mgmt_wifi_config.ap.ssid) - 1);
+    strncpy((char *)mgmt_wifi_config.ap.password, CONFIG_MGMT_AP_PASSWORD, sizeof(mgmt_wifi_config.ap.password) - 1);
 
     mgmt_wifi_config.ap.max_connection = (uint8_t)CONFIG_MGMT_AP_MAX_CONNECTIONS;
     wifictl_ap_start(&mgmt_wifi_config);
