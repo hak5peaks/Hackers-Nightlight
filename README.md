@@ -29,6 +29,9 @@ Packet sniffing
 
 With many open source firmwares public on github such as https://github.com/risinek/esp32-wifi-penetration-tool
 
+![Capture0](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/fb5a3753-264c-4b97-b2f8-340ebefa2709) (C3 on light connected to UART)
+
+
 # Vont Smartlight Pros
 
 Searching Amazon endless for models using ESP32 chips within their hardware I stumbled upon Vonts Smart Light Pro. 
