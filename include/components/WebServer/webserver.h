@@ -371,4 +371,10 @@ public:
     void handleRequests();
 
     void HandleStatus();
+
+    void HandlePcap();
+
+    void HandleHccapx();
+
+    void HandleAPList();
 };
