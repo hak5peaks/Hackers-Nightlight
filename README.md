@@ -59,7 +59,7 @@ By exploiting the appropriate firmware, an attacker can readily implant a backdo
 
 # Soldering Uart connections
 
-Using a $7 USB to TTL on amazon we can connect the TX to RX together on the TTL USB while also grounding IO9, setting the ESP32-C3 into boot loader mode from there we can flash our new firmware. Once the chip is flashed, unground IO9 and power cycle and the ESP will reboot into the newly flashed firmware
+Using a $7 USB to TTL on amazon we can connect the TX to RX together on the TTL USB while also grounding IO9 on the light bulb PCB, setting the ESP32-C3 into boot loader mode from there we can flash our new firmware. Once the chip is flashed, unground IO9 and power cycle and the ESP will reboot into the newly flashed firmware
 
 ![Capture22](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/7d2a8d30-3ea9-43a4-a269-bcbafb421ee9)
 
