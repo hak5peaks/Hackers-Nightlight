@@ -21,11 +21,11 @@ lights often use simple WiFi-enabled microcontrollers to manage connections and 
 Different models of lights will use different microcontrollers for these operations. Certain microcontrollers possess the capability to perform WiFi network penetration or exploitation.
 One model is the ESP32-C3. Capability of doing such this such as 
 
-PMKID capture
-Deauthentication attacks using various methods
-WPA/WPA2 handshake capture and parsing
-Passive handshake sniffing
-Packet sniffing
+* PMKID capture
+* Deauthentication attacks using various methods
+* WPA/WPA2 handshake capture and parsing
+* Passive handshake sniffing
+* Packet sniffing
 
 With many open source firmwares public on github such as https://github.com/risinek/esp32-wifi-penetration-tool
 
