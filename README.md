@@ -67,6 +67,9 @@ Once connected we are able to read and write to the flash
 
 (USB to TTL: https://www.amazon.com/dp/B00LODGRV8)
 
+![Untitled-2](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/3faa23ab-5814-478f-b56d-15a533a8d59e)
+
+
 # Flashing 
 
 Donwload the Flashtool from https://www.espressif.com/en/support/download/other-tools 
