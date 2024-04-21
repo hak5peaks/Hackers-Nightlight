@@ -29,23 +29,24 @@ One model is the ESP32-C3. Capability of doing such this such as
 
 With many open source firmwares public on github such as https://github.com/risinek/esp32-wifi-penetration-tool
 
-![Capture0](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/fb5a3753-264c-4b97-b2f8-340ebefa2709) (C3 on light connected to UART)
-
-
 # Vont Smartlight Pros
 
 Searching Amazon endless for models using ESP32 chips within their hardware I stumbled upon Vonts Smart Light Pro. 
 
-This model of smart light specifically uses a ESP32-C3 with 4 MB of flash. Using these GPIO pins for light control: 
+This model of smart light specifically uses a ESP32-C3 with 4 MB of flash. 
 
+![Capture0](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/fb5a3753-264c-4b97-b2f8-340ebefa2709) (C3 on light connected to UART)
 
-GPIO03    PWM_i 5    Warm White
-GPIO04    PWM 4    Cool White
-GPIO05    PWM 3    Blue
-GPIO06    PWM 1    Red
-GPIO07    PWM 2    Green
+Using these GPIO pins for light control: 
+
+* GPIO03    PWM_i 5    Warm White
+* GPIO04    PWM 4    Cool White
+* GPIO05    PWM 3    Blue
+* GPIO06    PWM 1    Red
+* GPIO07    PWM 2    Green
 
 Tearing into the light bulb reveals UART copper pads allowing someone to easily soder and access the ESP32-C3 on the PCB
+
 
 ![Untitled-1](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/e68fed69-ae99-4fa5-ab37-bb71a288bb7b)
 
@@ -53,9 +54,12 @@ Tearing into the light bulb reveals UART copper pads allowing someone to easily 
 
 By exploiting the appropriate firmware, an attacker can readily implant a backdoor using the ESP32-C3 chip, enabling remote connectivity to the PCB for executing attacks or packet sniffing, all while maintaining the appearance and functionality of a typical Smart Light bulb.
 
+
+
 (Vont has went out of business and no longer sells smart home application or this model of lightbulb) 
 
 (Old Amazon Link https://www.amazon.com/dp/B09K38ZXYG)
+
 
 # Soldering Uart connections
 
