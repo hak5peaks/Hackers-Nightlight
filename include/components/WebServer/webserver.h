@@ -27,6 +27,23 @@ public:
     static esp_err_t uri_status_get_handler(httpd_req_t *req);
     static esp_err_t uri_capture_pcap_get_handler(httpd_req_t *req);
     static esp_err_t uri_capture_hccapx_get_handler(httpd_req_t *req);
+    static esp_err_t uri_gpio_led_handler(httpd_req_t *req);
+    static esp_err_t uri_update_firmware_handler(httpd_req_t *req);
+
+    httpd_uri_t uri_gpio_led_get = {
+    .uri = "/setcolor",
+    .method = HTTP_POST,
+    .handler = uri_gpio_led_handler,
+    .user_ctx = NULL
+    };
+
+    httpd_uri_t uri_update_post = {
+    .uri = "/update",
+    .method = HTTP_POST,
+    .handler = uri_update_firmware_handler,
+    .user_ctx = NULL
+    };
+
 
     httpd_uri_t uri_root_get = {
     .uri = "/",

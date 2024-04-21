@@ -7,7 +7,7 @@ extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Welcome Peaks, Booting Up...");
+  Serial.println("Welcome, Booting Up...");
   SystemManager::getInstance().SetupSystem();
 }
 

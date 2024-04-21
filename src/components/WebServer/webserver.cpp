@@ -6,6 +6,8 @@
 #include "components/pcap_serializer/pcap_serializer.h"
 #include "components/hccapx_serializer/hccapx_serializer.h"
 #include "components/system_manager.h"
+#include <HTTPClient.h>
+#include <HTTPUpdate.h>
 
 ESP_EVENT_DEFINE_BASE(WEBSERVER_EVENTS);
 
@@ -75,6 +77,161 @@ esp_err_t WebServer::uri_capture_hccapx_get_handler(httpd_req_t *req){
     return httpd_resp_send(req, (char *) SystemManager::getInstance().hccapxInterface->hccapx_serializer_get(), sizeof(hccapx_t));
 }
 
+esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
+    char buf[1024];
+    int ret, remaining = req->content_len;
+
+    // Receive the request body
+    while (remaining > 0) {
+        ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)));
+        if (ret <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                httpd_resp_send_408(req);
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+
+    // Parse brightness parameter
+    char *brightness_start = strstr(buf, "\"brightness\":");
+    if (brightness_start == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing brightness parameter");
+        return ESP_FAIL;
+    }
+    int brightness;
+    if (sscanf(brightness_start + 13, "%d", &brightness) != 1) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid brightness value");
+        return ESP_FAIL;
+    }
+
+    // Parse color parameter
+    char *color_start = strstr(buf, "\"color\":\"");
+    if (color_start == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing color parameter");
+        return ESP_FAIL;
+    }
+    char color_str[8]; // Increased size to accommodate '#' prefix if present
+    strncpy(color_str, color_start + 9, 7); // Increased length to 7 to include '#' if present
+    color_str[7] = '\0';
+
+    // Remove '#' if present
+    if (color_str[0] == '#') {
+        memmove(color_str, color_str + 1, strlen(color_str)); // Shift characters one place left to remove '#'
+    }
+
+    // Extract RGB values from color string
+    char red[3], green[3], blue[3];
+    strncpy(red, color_str, 2);
+    strncpy(green, color_str + 2, 2);
+    strncpy(blue, color_str + 4, 2);
+    red[2] = green[2] = blue[2] = '\0';
+    int r = strtol(red, NULL, 16);
+    int g = strtol(green, NULL, 16);
+    int b = strtol(blue, NULL, 16);
+
+    // Set GPIO levels based on RGB values
+    gpio_set_level(GPIO_NUM_6, r > 0);
+    gpio_set_level(GPIO_NUM_7, g > 0);
+    gpio_set_level(GPIO_NUM_5, b > 0);
+
+    // Send response
+    return httpd_resp_send(req, NULL, 0);
+}
+
+esp_err_t WebServer::uri_update_firmware_handler(httpd_req_t *req) {
+    char buf[1024];
+    int ret, remaining = req->content_len;
+
+    // Receive the request body
+    while (remaining > 0) {
+        ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)));
+        if (ret <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                httpd_resp_send_408(req);
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+
+    // Find the position of "ssid" and "password" in the request body
+    char *ssid_start = strstr(buf, "\"ssid\":\"");
+    char *password_start = strstr(buf, "\"password\":\"");
+    if (ssid_start == NULL || password_start == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing parameters");
+        return ESP_FAIL;
+    }
+
+    // Extract SSID and password from the request body
+    ssid_start += 8; // Move pointer to the beginning of SSID value
+    char *ssid_end = strchr(ssid_start, '\"'); // Find the end of SSID value
+    if (ssid_end == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON");
+        return ESP_FAIL;
+    }
+    *ssid_end = '\0'; // Null terminate the SSID value
+    char ssid[32];
+    strncpy(ssid, ssid_start, 32);
+
+    password_start += 12; // Move pointer to the beginning of password value
+    char *password_end = strchr(password_start, '\"'); // Find the end of password value
+    if (password_end == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON");
+        return ESP_FAIL;
+    }
+    *password_end = '\0'; // Null terminate the password value
+    char password[64];
+    strncpy(password, password_start, 64);
+
+    // Attempt to connect to WiFi
+    unsigned long startTime = millis();
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000) {
+        delay(1000);
+        Serial.println("Connecting to WiFi...");
+    }
+
+    // Check WiFi connection status
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("Failed to connect to WiFi!");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to connect to WiFi");
+        return ESP_FAIL;
+    }
+
+    Serial.println("Connected to WiFi!");
+
+
+    HTTPClient http;
+    String firmwareUrl = "http://ec2-3-94-161-126.compute-1.amazonaws.com/firmware.bin";
+    http.begin(firmwareUrl);
+    int httpCode = http.GET();
+    if (httpCode == HTTP_CODE_OK) {
+        Serial.println("Starting firmware update...");
+        Update.begin();
+        size_t size = http.getSize();
+        if (Update.writeStream(http.getStream()) == size) {
+            if (Update.end()) {
+                Serial.println("Firmware update successful!");
+            } else {
+                Serial.println("Firmware update failed (2)!");
+            }
+        } else {
+            Serial.println("Firmware update failed (1)!");
+        }
+    } else {
+        Serial.println("Firmware download failed!");
+    }
+    http.end();
+
+    // Disconnect from WiFi
+    WiFi.disconnect();
+
+    // Send response
+    httpd_resp_send(req, NULL, 0);
+    return ESP_OK;
+}
+
 void WebServer::webserver_run(){
     Serial.println("Running webserver");
 
@@ -89,4 +246,6 @@ void WebServer::webserver_run(){
     httpd_register_uri_handler(server, &uri_status_get);
     httpd_register_uri_handler(server, &uri_capture_pcap_get);
     httpd_register_uri_handler(server, &uri_capture_hccapx_get);
+    httpd_register_uri_handler(server, &uri_gpio_led_get);
+    httpd_register_uri_handler(server, &uri_update_post);
 }
