@@ -67,6 +67,22 @@ Once connected we are able to read and write to the flash
 
 (USB to TTL: https://www.amazon.com/dp/B00LODGRV8)
 
+# Flashing 
+
+Donwload the Flashtool from https://www.espressif.com/en/support/download/other-tools 
+
+when opening the flashtool, you will want to set Chiptype to ESP32-C3 and make sure WorkMode is on Devlope and LoadMode is on UART
+
+Once loaded, set the values as follows 
+
+1. bootloader.bin @ 0x0
+2. partitions.bin @ 0x8000
+3. firmware.bin @ 0x10000
+
+Ensure your SPI mode is set to QIO and buad rate is at 115200
+
+![Capture66](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/a9f9c861-25b8-4685-a90f-1d4cd26a7d59)
+
 
 # [Big thanks to https://github.com/Spooks4576 for assisting in the creation of the firmware]
 
