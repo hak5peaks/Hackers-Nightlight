@@ -52,7 +52,7 @@ Tearing into the light bulb reveals UART copper pads allowing someone to easily 
 
 
 
-By exploiting the appropriate firmware, an attacker can readily implant a backdoor using the ESP32-C3 chip, enabling remote connectivity to the PCB for executing attacks or packet sniffing, all while maintaining the appearance and functionality of a typical Smart Light bulb.
+By leveraging the appropriate firmware, an attacker can readily implant a backdoor using the ESP32-C3 chip, enabling remote connectivity to the PCB for executing attacks or packet sniffing, all while maintaining the appearance and functionality of a typical Smart Light bulb.
 
 
 
