@@ -1,87 +1,92 @@
-#include "components/WebServer/webserver.h"
+#include "components/webserver/webserver.h"
+#include "components/webserver/page_index.h"
+
+#include "components/wifi_controller/wifi_controller.h"
+#include "main/attack.h"
+#include "components/pcap_serializer/pcap_serializer.h"
+#include "components/hccapx_serializer/hccapx_serializer.h"
 #include "components/system_manager.h"
 
-void WebServerComponent::begin()
+ESP_EVENT_DEFINE_BASE(WEBSERVER_EVENTS);
+
+esp_err_t WebServer::uri_root_get_handler(httpd_req_t *req)
 {
-    WiFi.softAP(ssid, password);
-
-    ip = WiFi.softAPIP();
-    Serial.print("Access Point IP address: ");
-    Serial.println(ip);
-
-    server.on("/", HTTP_GET, std::bind(&WebServerComponent::handleRoot, this));
-    server.on("/status", HTTP_GET, std::bind(&WebServerComponent::HandleStatus, this));
-    server.on("/capture.pcap", HTTP_GET, std::bind(&WebServerComponent::HandlePcap, this));
-    server.on("/capture.hccapx", HTTP_GET, std::bind(&WebServerComponent::HandleHccapx, this));
-
-    server.onNotFound(std::bind(&WebServerComponent::handleNotFound, this));
-
-    server.begin();
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
+    return httpd_resp_send(req, (const char *)page_index, page_index_len);
 }
 
-void WebServerComponent::handleRoot()
-{
-    server.send(200, "text/html", index_html);
+esp_err_t WebServer::uri_reset_head_handler(httpd_req_t *req) {
+    esp_event_post(WEBSERVER_EVENTS, WEBSERVER_EVENT_ATTACK_RESET, NULL, 0, portMAX_DELAY);
+    return httpd_resp_send(req, NULL, 0);
 }
 
-void WebServerComponent::handleNotFound() {
-    server.send(404, "text/plain", "404: Not Found");
-}
+esp_err_t WebServer::uri_ap_list_get_handler(httpd_req_t *req) {
+    SystemManager::getInstance().wificontrollerInterface->wifictl_scan_nearby_aps();
 
-void WebServerComponent::HandleAPList()
-{
-    wifictl_ap_records_t ap_records;
+    const wifictl_ap_records_t *ap_records;
+    ap_records = SystemManager::getInstance().wificontrollerInterface->wifictl_get_ap_records();
 
-    int16_t foundnetworks = WiFi.scanNetworks();
-
+    // 33 SSID + 6 BSSID + 1 RSSI
     char resp_chunk[40];
 
-    for (int i = 0; i < foundnetworks; i++)
-    {
-        if (i > 10)
-        break;
-
-        int32_t rssi = WiFi.RSSI(i);
-        memcpy(resp_chunk, WiFi.SSID(i).c_str(), 33);
-        memcpy(&resp_chunk[33], WiFi.BSSIDstr(i).c_str(), 6);
-        memcpy(&resp_chunk[39], &rssi, 1);
-        server.send(200, "application/octet-stream", resp_chunk);
+    httpd_resp_set_type(req, HTTPD_TYPE_OCTET);
+    for(unsigned i = 0; i < ap_records->count; i++){
+        memcpy(resp_chunk, ap_records->records[i].ssid, 33);
+        memcpy(&resp_chunk[33], ap_records->records[i].bssid, 6);
+        memcpy(&resp_chunk[39], &ap_records->records[i].rssi, 1);
+        httpd_resp_send_chunk(req, resp_chunk, 40);
     }
-
-    server.send(200, "application/octet-stream", 0);
+    return httpd_resp_send_chunk(req, resp_chunk, 0);
 }
 
-void WebServerComponent::HandlePcap()
-{
-    Serial.println("Providing PCAP file...");
-    // server.send(200, "application/octet-stream", );  TODO
-    server.send(404, "text/plain", "Need to Implement");
+esp_err_t WebServer::uri_run_attack_post_handler(httpd_req_t *req) {
+    attack_request_t attack_request;
+    httpd_req_recv(req, (char *)&attack_request, sizeof(attack_request_t));
+    esp_err_t res = httpd_resp_send(req, NULL, 0);
+    esp_event_post(WEBSERVER_EVENTS, WEBSERVER_EVENT_ATTACK_REQUEST, &attack_request, sizeof(attack_request_t), portMAX_DELAY);
+    return res;
 }
 
-void WebServerComponent::HandleHccapx()
-{
-    Serial.println("Providing HCCAPX file...");
-    // server.send(200, "application/octet-stream", );  TODO
-    server.send(404, "text/plain", "Need to Implement");
-}
- 
-void WebServerComponent::HandleStatus()
-{
+esp_err_t WebServer::uri_status_get_handler(httpd_req_t *req) {
     Serial.println("Fetching attack status...");
-    attack_status_t* attack_status = &SystemManager::getInstance().attack_status;
+    const attack_status_t *attack_status;
+    attack_status = attack_get_status();
 
-    if (attack_status)
-    {
-        Serial.println("About to Send Status");
-        server.send(200, "application/octet-stream", reinterpret_cast<const char*>(attack_status));
+    httpd_resp_set_type(req, HTTPD_TYPE_OCTET);
+    // first send attack result header
+    httpd_resp_send_chunk(req, (char *) attack_status, 4);
+    // send attack result content
+    if(((attack_status->state == FINISHED) || (attack_status->state == TIMEOUT)) && (attack_status->content_size > 0)){
+        ESP_ERROR_CHECK(httpd_resp_send_chunk(req, attack_status->content, attack_status->content_size));
     }
-    else 
-    {
-        Serial.println("Invalid Status");
-    }
+    return httpd_resp_send_chunk(req, NULL, 0);
 }
 
-void WebServerComponent::handleRequests()
-{
-    server.handleClient();
+esp_err_t WebServer::uri_capture_pcap_get_handler(httpd_req_t *req){
+   Serial.println("Providing PCAP file...");
+    ESP_ERROR_CHECK(httpd_resp_set_type(req, HTTPD_TYPE_OCTET));
+    return httpd_resp_send(req, (char *) SystemManager::getInstance().pcapInterface->pcap_serializer_get_buffer(), SystemManager::getInstance().pcapInterface->pcap_serializer_get_size());
+}
+
+esp_err_t WebServer::uri_capture_hccapx_get_handler(httpd_req_t *req){
+    Serial.println("Providing HCCAPX file...");
+    ESP_ERROR_CHECK(httpd_resp_set_type(req, HTTPD_TYPE_OCTET));
+    return httpd_resp_send(req, (char *) SystemManager::getInstance().hccapxInterface->hccapx_serializer_get(), sizeof(hccapx_t));
+}
+
+void WebServer::webserver_run(){
+    Serial.println("Running webserver");
+
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_handle_t server = NULL;
+
+    httpd_start(&server, &config);
+    httpd_register_uri_handler(server, &uri_root_get);
+    httpd_register_uri_handler(server, &uri_reset_head);
+    httpd_register_uri_handler(server, &uri_ap_list_get);
+    httpd_register_uri_handler(server, &uri_run_attack_post);
+    httpd_register_uri_handler(server, &uri_status_get);
+    httpd_register_uri_handler(server, &uri_capture_pcap_get);
+    httpd_register_uri_handler(server, &uri_capture_hccapx_get);
 }
