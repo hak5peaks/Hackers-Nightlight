@@ -47,7 +47,8 @@ GPIO07    PWM 2    Green
 
 Tearing into the light bulb reveals UART copper pads allowing someone to easily soder and access the ESP32-C3 on the PCB
 
-![Untitled-1](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/b83a7660-581c-4a84-944e-2fa5a6db3e01)
+![Untitled-1](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/e68fed69-ae99-4fa5-ab37-bb71a288bb7b)
+
 
 
 By exploiting the appropriate firmware, an attacker can readily implant a backdoor using the ESP32-C2 chip, enabling remote connectivity to the PCB for executing attacks or packet sniffing, all while maintaining the appearance and functionality of a typical Smart Light bulb.
