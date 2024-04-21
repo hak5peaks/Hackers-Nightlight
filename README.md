@@ -1,9 +1,6 @@
 ## Hacker-Nightlight
 
-<p align="center">
-  <img src="https://github.com/Peaakss/Hacker-Nightlight/raw/main/assets/324166552-2f7a9811-08fe-47ba-a03e-0092ca4ed871%20(1).png" alt="Your Image Description" />
-</p>
-
+https://github.com/Peaakss/Hacker-Nightlight/raw/main/assets/324166552-2f7a9811-08fe-47ba-a03e-0092ca4ed871%20(1).png
 
 
 # Context
