@@ -19,7 +19,7 @@ lights often use simple WiFi-enabled microcontrollers to manage connections and 
 
 
 Different models of lights will use different microcontrollers for these operations. Certain microcontrollers possess the capability to perform WiFi network penetration or exploitation.
-One model is the ESP32-C2. Capability of doing such this such as 
+One model is the ESP32-C3. Capability of doing such this such as 
 
 PMKID capture
 Deauthentication attacks using various methods
@@ -51,7 +51,7 @@ Tearing into the light bulb reveals UART copper pads allowing someone to easily 
 
 
 
-By exploiting the appropriate firmware, an attacker can readily implant a backdoor using the ESP32-C2 chip, enabling remote connectivity to the PCB for executing attacks or packet sniffing, all while maintaining the appearance and functionality of a typical Smart Light bulb.
+By exploiting the appropriate firmware, an attacker can readily implant a backdoor using the ESP32-C3 chip, enabling remote connectivity to the PCB for executing attacks or packet sniffing, all while maintaining the appearance and functionality of a typical Smart Light bulb.
 
 (Vont has went out of business and no longer sells smart home application or this model of lightbulb) 
 
