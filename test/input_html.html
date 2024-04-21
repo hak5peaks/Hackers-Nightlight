@@ -45,7 +45,7 @@ section, #Update {
     align-items: center;
     justify-content: center;
     max-width: 600px;
-    width: 90%; /* Adjust width for smaller screens */
+    width: 70%; /* Adjust width for smaller screens */
     background-color: #333;
     border-radius: 1rem;
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
@@ -55,6 +55,13 @@ section, #Update {
 table {
     width: 100%;
     border-collapse: collapse;
+    overflow-x: auto;
+}
+
+@media screen and (max-width: 600px) {
+    table {
+        overflow-x: scroll; /* Enable horizontal scrolling */
+    }
 }
 
 th, td {
@@ -163,7 +170,7 @@ section, #Update {
     align-items: center;
     justify-content: center;
     max-width: 600px;
-    width: 90%; /* Adjust width for smaller screens */
+    width: 70%; /* Adjust width for smaller screens */
     background-color: #333;
     border-radius: 1rem;
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
@@ -179,6 +186,7 @@ th, td {
     border: 1px solid #444;
     padding: 1rem;
     text-align: left;
+    max-width: 50%;
 }
 
 .color-input-wrapper, .slider-wrapper {
@@ -394,10 +402,13 @@ var AttackStateEnum = { READY: 0, RUNNING: 1, FINISHED: 2, TIMEOUT: 3};
 function setColor() {
     var colorCode = document.getElementById('color-code').value;
     var colorBox = document.getElementById('color-box');
+    var brightnessValue = document.getElementById('color-slider').value;
+
+    print(brightnessValue);
     
     // Set background color of the box if the color code is valid
     if (colorCode.match(/^#[0-9A-Fa-f]{6}$/)) {
-        colorBox.style.backgroundColor = colorCode;
+        //colorBox.style.backgroundColor = colorCode;
         
         // Send POST request to /setcolor
         fetch('/setcolor', {
@@ -405,7 +416,7 @@ function setColor() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ color: colorCode })
+            body: JSON.stringify({ color: colorCode, brightness: brightnessValue })
         })
         .then(response => {
             if (!response.ok) {
@@ -423,7 +434,6 @@ function setColor() {
         alert("Invalid color code. Please enter a valid HEX color code.");
     }
 }
-setColor();
 
 // Function to set brightness based on the slider value and send a POST request
 function setBrightness() {
@@ -502,7 +512,7 @@ function setBrightness() {
         document.getElementById("ap-list").innerHTML = "Loading (this may take a while)...";
         var oReq = new XMLHttpRequest();
         oReq.onload = function() {
-            document.getElementById("ap-list").innerHTML = "<th>SSID</th><th>BSSID</th><th>RSSI</th>";
+            document.getElementById("ap-list").innerHTML = "<th>SSID</th><th>RSSI</th>";
             var arrayBuffer = oReq.response;
             if(arrayBuffer) {
                 var byteArray = new Uint8Array(arrayBuffer);
@@ -512,13 +522,8 @@ function setBrightness() {
                     tr.setAttribute("onClick", "selectAp(this)");
                     var td_ssid = document.createElement('td');
                     var td_rssi = document.createElement('td');
-                    var td_bssid = document.createElement('td');
                     td_ssid.innerHTML = new TextDecoder("utf-8").decode(byteArray.subarray(i + 0, i + 32));
                     tr.appendChild(td_ssid);
-                    for(let j = 0; j < 6; j++){
-                        td_bssid.innerHTML += uint8ToHex(byteArray[i + 33 + j]) + ":";
-                    }
-                    tr.appendChild(td_bssid);
                     td_rssi.innerHTML = byteArray[i + 39] - 255;
                     tr.appendChild(td_rssi);
                     document.getElementById("ap-list").appendChild(tr);

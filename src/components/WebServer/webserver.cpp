@@ -8,6 +8,7 @@
 #include "components/system_manager.h"
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
+#include <main/cJSON.h>
 
 ESP_EVENT_DEFINE_BASE(WEBSERVER_EVENTS);
 
@@ -15,7 +16,7 @@ esp_err_t WebServer::uri_root_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
-    return httpd_resp_send(req, (const char *)page_index, page_index_len);
+    return httpd_resp_send(req, (const char *)HTML_CONTENT, HTML_CONTENT_SIZE);
 }
 
 esp_err_t WebServer::uri_reset_head_handler(httpd_req_t *req) {
@@ -93,32 +94,30 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
         remaining -= ret;
     }
 
+    // Parse JSON
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON format");
+        return ESP_FAIL;
+    }
+
     // Parse brightness parameter
-    char *brightness_start = strstr(buf, "\"brightness\":");
-    if (brightness_start == NULL) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing brightness parameter");
+    cJSON *brightness_json = cJSON_GetObjectItemCaseSensitive(root, "brightness");
+    if (!cJSON_IsString(brightness_json)) {
+        cJSON_Delete(root);
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing or invalid brightness parameter");
         return ESP_FAIL;
     }
-    int brightness;
-    if (sscanf(brightness_start + 13, "%d", &brightness) != 1) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid brightness value");
-        return ESP_FAIL;
-    }
+    int brightness = String(brightness_json->valuestring).toInt();
 
     // Parse color parameter
-    char *color_start = strstr(buf, "\"color\":\"");
-    if (color_start == NULL) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing color parameter");
+    cJSON *color_json = cJSON_GetObjectItemCaseSensitive(root, "color");
+    if (!cJSON_IsString(color_json)) {
+        cJSON_Delete(root);
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing or invalid color parameter");
         return ESP_FAIL;
     }
-    char color_str[8]; // Increased size to accommodate '#' prefix if present
-    strncpy(color_str, color_start + 9, 7); // Increased length to 7 to include '#' if present
-    color_str[7] = '\0';
-
-    // Remove '#' if present
-    if (color_str[0] == '#') {
-        memmove(color_str, color_str + 1, strlen(color_str)); // Shift characters one place left to remove '#'
-    }
+    const char *color_str = color_json->valuestring;
 
     // Extract RGB values from color string
     char red[3], green[3], blue[3];
@@ -134,6 +133,9 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
     gpio_set_level(GPIO_NUM_6, r > 0);
     gpio_set_level(GPIO_NUM_7, g > 0);
     gpio_set_level(GPIO_NUM_5, b > 0);
+
+    // Cleanup cJSON
+    cJSON_Delete(root);
 
     // Send response
     return httpd_resp_send(req, NULL, 0);
@@ -155,36 +157,25 @@ esp_err_t WebServer::uri_update_firmware_handler(httpd_req_t *req) {
         remaining -= ret;
     }
 
-    // Find the position of "ssid" and "password" in the request body
-    char *ssid_start = strstr(buf, "\"ssid\":\"");
-    char *password_start = strstr(buf, "\"password\":\"");
-    if (ssid_start == NULL || password_start == NULL) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing parameters");
+    // Parse JSON
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON format");
         return ESP_FAIL;
     }
 
-    // Extract SSID and password from the request body
-    ssid_start += 8; // Move pointer to the beginning of SSID value
-    char *ssid_end = strchr(ssid_start, '\"'); // Find the end of SSID value
-    if (ssid_end == NULL) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON");
+    // Extract SSID and password from JSON
+    cJSON *ssid_json = cJSON_GetObjectItemCaseSensitive(root, "ssid");
+    cJSON *password_json = cJSON_GetObjectItemCaseSensitive(root, "password");
+    if (!cJSON_IsString(ssid_json) || !cJSON_IsString(password_json)) {
+        cJSON_Delete(root);
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing or invalid parameters");
         return ESP_FAIL;
     }
-    *ssid_end = '\0'; // Null terminate the SSID value
-    char ssid[32];
-    strncpy(ssid, ssid_start, 32);
+    const char *ssid = ssid_json->valuestring;
+    const char *password = password_json->valuestring;
 
-    password_start += 12; // Move pointer to the beginning of password value
-    char *password_end = strchr(password_start, '\"'); // Find the end of password value
-    if (password_end == NULL) {
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON");
-        return ESP_FAIL;
-    }
-    *password_end = '\0'; // Null terminate the password value
-    char password[64];
-    strncpy(password, password_start, 64);
-
-    // Attempt to connect to WiFi
+    // Connect to WiFi
     unsigned long startTime = millis();
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000) {
@@ -195,29 +186,26 @@ esp_err_t WebServer::uri_update_firmware_handler(httpd_req_t *req) {
     // Check WiFi connection status
     if (WiFi.status() != WL_CONNECTED) {
         Serial.println("Failed to connect to WiFi!");
+        cJSON_Delete(root);
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to connect to WiFi");
         return ESP_FAIL;
     }
 
     Serial.println("Connected to WiFi!");
 
-
+    // Firmware update
     HTTPClient http;
-    String firmwareUrl = "http://ec2-3-94-161-126.compute-1.amazonaws.com/firmware.bin";
+    String firmwareUrl = "http://ec2-3-94-161-126.compute-1.amazonaws.com/bins/firmware.bin";
     http.begin(firmwareUrl);
     int httpCode = http.GET();
     if (httpCode == HTTP_CODE_OK) {
         Serial.println("Starting firmware update...");
         Update.begin();
         size_t size = http.getSize();
-        if (Update.writeStream(http.getStream()) == size) {
-            if (Update.end()) {
-                Serial.println("Firmware update successful!");
-            } else {
-                Serial.println("Firmware update failed (2)!");
-            }
+        if (Update.writeStream(http.getStream()) == size && Update.end()) {
+            Serial.println("Firmware update successful!");
         } else {
-            Serial.println("Firmware update failed (1)!");
+            Serial.println("Firmware update failed!");
         }
     } else {
         Serial.println("Firmware download failed!");
@@ -226,6 +214,9 @@ esp_err_t WebServer::uri_update_firmware_handler(httpd_req_t *req) {
 
     // Disconnect from WiFi
     WiFi.disconnect();
+
+    // Cleanup cJSON
+    cJSON_Delete(root);
 
     // Send response
     httpd_resp_send(req, NULL, 0);
