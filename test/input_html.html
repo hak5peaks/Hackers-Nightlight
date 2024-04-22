@@ -121,7 +121,7 @@ th, td {
     }
 }
 
-input[type="text"], input[type="password"], #color-slider, #set-brightness {
+input[type="text"], input[type="password"], #set-brightness {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -240,15 +240,6 @@ th, td {
     }
 }
 
-input[type="text"], input[type="password"], #color-slider, #set-brightness {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #444;
-    border-radius: 0.5rem;
-    color: #fff;
-    background-color: #1a1a1a;
-}
 </style>
 </head>
 <body>
@@ -300,6 +291,7 @@ input[type="text"], input[type="password"], #color-slider, #set-brightness {
     <div id="result-content"></div>
     <button type="button" onClick="resetAttack()">New attack</button>
 </section>
+
 <section id="light-color-setting">
     <h2>Light Color Setting</h2>
     <div class="color-input-wrapper">
@@ -310,19 +302,31 @@ input[type="text"], input[type="password"], #color-slider, #set-brightness {
     <input type="color" id="color-picker" style="display: none;">
     <div class="slider-wrapper">
         <label for="color-slider">Brightness:</label>
-        <input type="range" id="color-slider" min="0" max="255" value="0" oninput="setColor()">
+        <div class="slider-container">
+            <div style="margin-top: 10px;">
+                <input type="range" id="color-slider" min="0" max="255" value="0" oninput="setColor()">
+            </div>
+            <div class="slider-labels">
+                <span>0</span><span style="float:right;">100</span>
+            </div>
+        </div>
     </div>
     <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #FFC58F,  #C9E2FF); margin-bottom: 8px;"></div>
     <div class="slider-wrapper">
         <label for="warm-cold-slider">Warm/Cold:</label>
-        <input type="range" id="warm-cold-slider" min="0" max="255" value="0" oninput="setColor()">
+        <div class="slider-container">
+            <input type="range" id="warm-cold-slider" min="0" max="255" value="0" oninput="setColor()">
+            <div class="slider-labels">
+                <span>0</span><span style="float:right;">100</span>
+            </div>
+        </div>
     </div>
     <p>NOTICE</p>
     <p class="center-text">Warm/Cold slider must be set all the way back to light or 0 to set a new RGB value</p>
 </section>
 
 
-    
+   
 <section id="Update">
     <h2>Update</h2>
     <form id="updateForm">
