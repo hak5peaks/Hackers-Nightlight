@@ -91,4 +91,25 @@ Ensure your SPI mode is set to QIO and baud rate is at 115200
 ![Capture66](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/a9f9c861-25b8-4685-a90f-1d4cd26a7d59)
 
 
+# After flashing
+
+once you flash the ESP32-C3 you will want to remove you will want to unpower the device and remove it from bootloader, once you have done that you can either 
+
+1. plug in the USB to UART (LED array will not be on)
+2. remove UART cables from USB and plug light into E26 socket (lamp or light socket)
+
+from there you will want to connect to the Nightlight AP using the Password "Nightlight12345" then navigate to the web page hosted on 192.168.4.1
+
+![gdjgndrkgndr](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/28d1392a-6f49-4e97-bf9e-9aef69b9064e)
+
+to change light colors scroll down to the light control page
+
+![fsjabfeklblkef](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/d41c30a4-6cf0-4f87-95f3-53d02d54242f)
+
+
+Click the box, this is give you a color picker to select a RGB code for the light
+
+YOU CANNOT HAVE RBG AND WARM/COLD LIGHTS ON AT THE SAME TIME, if you move the warm/cold slider it will turn on the warm/cold lights, to turn RBG back on slide it back and the RBG will turn back on
+
+
 # [Big thanks to https://github.com/Spooks4576 for assisting in the creation of the firmware]
