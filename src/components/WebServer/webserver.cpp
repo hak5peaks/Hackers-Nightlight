@@ -10,6 +10,14 @@
 #include <HTTPUpdate.h>
 #include <main/cJSON.h>
 
+#define RED_PIN 6
+#define GREEN_PIN 7
+#define BLUE_PIN 5
+#define WARM_PIN 3
+#define COLD_PIN 4
+
+#define MAX_PWM_VALUE 1024
+
 ESP_EVENT_DEFINE_BASE(WEBSERVER_EVENTS);
 
 esp_err_t WebServer::uri_root_get_handler(httpd_req_t *req)
@@ -98,6 +106,7 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
     cJSON *root = cJSON_Parse(buf);
     if (root == NULL) {
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid JSON format");
+        Serial.println("Failed to parse JSON.");
         return ESP_FAIL;
     }
 
@@ -106,39 +115,72 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
     if (!cJSON_IsString(brightness_json)) {
         cJSON_Delete(root);
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing or invalid brightness parameter");
+        Serial.println("Missing or invalid brightness parameter.");
         return ESP_FAIL;
     }
-    int brightness = String(brightness_json->valuestring).toInt();
+    int brightness = constrain(String(brightness_json->valuestring).toInt(), 0, 255);
 
-    // Parse color parameter
-    cJSON *color_json = cJSON_GetObjectItemCaseSensitive(root, "color");
-    if (!cJSON_IsString(color_json)) {
+    // Check if warm value is provided
+    cJSON *warm_json = cJSON_GetObjectItemCaseSensitive(root, "warm");
+    if (cJSON_IsString(warm_json)) {
+        int warm = String(warm_json->valuestring).toInt();
+        if (warm > 0) {
+            // Scale warm value
+            warm = constrain(warm, 0, 255);
+            int warm_pin_value = map(warm, 0, 255, 0, 1024);
+
+            ledcWrite(0, 0);
+            ledcWrite(1, 0);
+            ledcWrite(2, 0);
+
+            // Set warm pins
+            Serial.println("Setting warm light intensity");
+            ledcWrite(3, warm_pin_value);
+            ledcWrite(4, brightness);  // Make sure cold light is off
+            cJSON_Delete(root); // Cleanup cJSON
+            httpd_resp_send(req, NULL, 0); // Send response
+            return ESP_OK; // Return success
+        }
+    }
+
+    ledcWrite(3, 0);
+    ledcWrite(4, 0);
+
+    // If warm light value is not provided or is 0, set RGB values
+    cJSON *rgb_json = cJSON_GetObjectItemCaseSensitive(root, "rgb");
+    if (!cJSON_IsObject(rgb_json)) {
         cJSON_Delete(root);
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing or invalid color parameter");
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Missing or invalid RGB parameters");
+        Serial.println("Missing or invalid RGB parameters.");
         return ESP_FAIL;
     }
-    const char *color_str = color_json->valuestring;
 
-    // Extract RGB values from color string
-    char red[3], green[3], blue[3];
-    strncpy(red, color_str, 2);
-    strncpy(green, color_str + 2, 2);
-    strncpy(blue, color_str + 4, 2);
-    red[2] = green[2] = blue[2] = '\0';
-    int r = strtol(red, NULL, 16);
-    int g = strtol(green, NULL, 16);
-    int b = strtol(blue, NULL, 16);
+    // Get individual RGB values
+    int red = cJSON_GetObjectItemCaseSensitive(rgb_json, "r")->valueint;
+    int green = cJSON_GetObjectItemCaseSensitive(rgb_json, "g")->valueint;
+    int blue = cJSON_GetObjectItemCaseSensitive(rgb_json, "b")->valueint;
 
-    // Set GPIO levels based on RGB values
-    gpio_set_level(GPIO_NUM_6, r > 0);
-    gpio_set_level(GPIO_NUM_7, g > 0);
-    gpio_set_level(GPIO_NUM_5, b > 0);
+    // Scale RGB values to match the range [0, 1024]
+    red = map(red, 0, 255, 0, brightness);
+    green = map(green, 0, 255, 0, brightness);
+    blue = map(blue, 0, 255, 0, brightness);
+
+    // Set RGB values using ledcWrite
+    Serial.println("Setting RGB values");
+    ledcWrite(0, blue);
+    ledcWrite(1, red);
+    ledcWrite(2, green);
 
     // Cleanup cJSON
     cJSON_Delete(root);
 
     // Send response
-    return httpd_resp_send(req, NULL, 0);
+    esp_err_t err = httpd_resp_send(req, NULL, 0);
+    if (err != ESP_OK) {
+        Serial.print("Failed to send response: ");
+        Serial.println(err);
+    }
+    return err;
 }
 
 esp_err_t WebServer::uri_update_firmware_handler(httpd_req_t *req) {
@@ -228,6 +270,8 @@ void WebServer::webserver_run(){
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
+
+    config.max_uri_handlers = 10;
 
     httpd_start(&server, &config);
     httpd_register_uri_handler(server, &uri_root_get);

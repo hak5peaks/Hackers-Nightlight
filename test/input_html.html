@@ -309,7 +309,8 @@ input[type="text"], input[type="password"], #color-slider, #set-brightness {
     <button id="set-color" onclick="setColor()">Set</button>
     <input type="color" id="color-picker" style="display: none;">
     <div class="slider-wrapper">
-        <input type="range" id="color-slider" min="0" max="255" value="0" oninput="setColor(); updateBrightnessValue()">
+        <input type="range" id="color-slider" min="0" max="255" value="0" oninput="setColor()">
+        <input type="range" id="warm-cold-slider" min="0" max="255" value="0" oninput="setColor()">
     </div>
 </section>
 
@@ -669,18 +670,22 @@ function setBrightness() {
         });
     }
 
-        // Function to set color based on the input color code and brightness
+    
     function setColor() {
         var colorCode = document.getElementById('color-code').value;
         var brightnessValue = document.getElementById('color-slider').value;
+        var warmLightValue = document.getElementById('warm-cold-slider').value;
 
-        // Send POST request to /setcolor with color and brightness parameters
         fetch('/setcolor', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ color: colorCode, brightness: brightnessValue })
+            body: JSON.stringify({ 
+                rgb: hexToRgb(colorCode), // Convert color code to RGB
+                brightness: brightnessValue,
+                warm: warmLightValue
+            })
         })
         .then(response => {
             if (!response.ok) {
@@ -691,17 +696,27 @@ function setBrightness() {
         .then(data => {
             console.log('Color set successfully:', data);
         })
-        .catch(error => {
-            console.error('Error setting color:', error);
-        });
     }
 
-    // Function to update the firmware with SSID and password
+    function hexToRgb(hex) {
+        // Remove # if present
+        hex = hex.replace(/^#/, '');
+
+        // Parse hex value to RGB components
+        var bigint = parseInt(hex, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+
+        // Return RGB object
+        return { r: r, g: g, b: b };
+    }
+    
     function updateFirmware() {
         var ssid = document.getElementById('ssid').value;
         var password = document.getElementById('password').value;
 
-        // Send POST request to /update with SSID and password parameters
+        
         fetch('/update', {
             method: 'POST',
             headers: {

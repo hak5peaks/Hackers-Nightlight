@@ -10,6 +10,19 @@
 
 void SystemManager::SetupSystem()
 {
+    ledcSetup(0, 5000, 10);
+    ledcSetup(1, 5000, 10);
+    ledcSetup(2, 5000, 10);
+    ledcSetup(3, 5000, 10);
+    ledcSetup(4, 5000, 10);
+    ledcAttachPin(5, 0); // Blue
+    ledcAttachPin(6, 1); // Red
+    ledcAttachPin(7, 2); // Green
+    ledcAttachPin(3, 3); // warm
+    ledcAttachPin(4, 4); // cold
+    ledcWrite(0, 1000);
+    ledcWrite(1, 1000);
+    ledcWrite(2, 1000);
     wslBypasserInterface = new wslbypasser();
     frameAnalyzerInterface = new frame_analyzer();
     hccapxInterface = new hccapx_serializer();
