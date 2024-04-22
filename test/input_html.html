@@ -309,11 +309,20 @@ input[type="text"], input[type="password"], #color-slider, #set-brightness {
     <button id="set-color" onclick="setColor()">Set</button>
     <input type="color" id="color-picker" style="display: none;">
     <div class="slider-wrapper">
+        <label for="color-slider">Brightness:</label>
         <input type="range" id="color-slider" min="0" max="255" value="0" oninput="setColor()">
+    </div>
+    <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #FFC58F,  #C9E2FF); margin-bottom: 8px;"></div>
+    <div class="slider-wrapper">
+        <label for="warm-cold-slider">Warm/Cold:</label>
         <input type="range" id="warm-cold-slider" min="0" max="255" value="0" oninput="setColor()">
     </div>
+    <p>NOTICE</p>
+    <p class="center-text">Warm/Cold slider must be set all the way back to light or 0 to set a new RGB value</p>
 </section>
 
+
+    
 <section id="Update">
     <h2>Update</h2>
     <form id="updateForm">
