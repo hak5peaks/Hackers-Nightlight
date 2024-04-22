@@ -104,7 +104,7 @@ from there you will want to connect to the Nightlight AP using the Password "Nig
 
 to change light colors scroll down to the light control page
 
-![fsjabfeklblkef](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/d41c30a4-6cf0-4f87-95f3-53d02d54242f)
+![fefeljfblekf](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/4542043f-0afd-4369-8c15-6d5f36757b61)
 
 
 Click the box, this is give you a color picker to select a RGB code for the light
