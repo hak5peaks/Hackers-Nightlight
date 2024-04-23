@@ -77,6 +77,11 @@ th, td {
     margin-bottom: 20px;
 }
 
+.selected {
+    background-color: #4fb3a4;
+    color: white; 
+}
+
 #color-box {
     width: 50px;
     height: 50px;
@@ -300,7 +305,9 @@ th, td {
     </div>
     <button id="set-color" onclick="setColor()">Set</button>
     <input type="color" id="color-picker" style="display: none;">
-    <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #000000, #ffffff); margin-top: 15px; margin-bottom: -10px;"></div>
+    <div style="text-align: center;">
+        <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #000000, #ffffff); margin-top: 15px; margin-bottom: -10px;"></div>
+      </div>
     <div class="slider-wrapper">
         <label for="color-slider">Brightness:</label>
         <div class="slider-container">
@@ -312,7 +319,9 @@ th, td {
             </div>
         </div>
     </div>
-    <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #FFC58F,  #C9E2FF); margin-bottom: 8px;"></div>
+    <div style="text-align: center;">
+        <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #FFC58F,  #C9E2FF); margin-bottom: 8px;"></div>
+      </div>
     <div class="slider-wrapper">
         <label for="warm-cold-slider">Warm/Cold:</label>
         <div class="slider-container">
@@ -326,6 +335,18 @@ th, td {
     <p class="center-text">Warm/Cold slider must be set all the way back to light or 0 to set a new RGB value</p>
 </section>
 
+<section id="AP-Config">
+    <h2>WiFi configuration</h2>
+    <p class="center-text">Current SSID: [current ssid]</p>
+    <p class="center-text" style="margin-top: -10px;">Current password: [current password]</p>
+    <form id="updateForm">
+        <p class="center-text">Set new AP name and Password</p>
+        <input type="text" id="ssid" name="ssid" placeholder="Enter New SSID">
+        <input type="password" id="password" name="password" placeholder="Enter New Password">
+        <button type="button" onclick="updateFirmware()">Update Firmware</button>
+    </form>
+    <p class="center-text">After setting device will reboot, reconnect to the new AP</p>
+</section>
    
 <section id="Update">
     <h2>Firmware Over Air</h2>
@@ -553,13 +574,21 @@ function setBrightness() {
         oReq.send();
     }
     function selectAp(el) {
-        console.log(el.id);
-        if(selectedApElement != -1){
-            selectedApElement.classList.remove("selected")
-        }
-        selectedApElement=el;
-        el.classList.add("selected");
+    console.log(el.id);
+    // Remove the 'selected' class from previously selected row, if any
+    var selectedRow = document.querySelector('.selected');
+    if (selectedRow) {
+        selectedRow.classList.remove('selected');
     }
+    
+    // Add the 'selected' class to the clicked row
+    el.classList.add('selected');
+    
+    // Update the selectedApElement variable
+    selectedApElement = el;
+}
+
+
     function runAttack() {
         if(selectedApElement == -1){
             console.log("No AP selected. Attack not started.");
