@@ -300,6 +300,7 @@ th, td {
     </div>
     <button id="set-color" onclick="setColor()">Set</button>
     <input type="color" id="color-picker" style="display: none;">
+    <div class="color-square" style="border: 2px solid black; width: 220px; height: 10px; background: linear-gradient(90deg, #000000, #ffffff); margin-top: 15px; margin-bottom: -10px;"></div>
     <div class="slider-wrapper">
         <label for="color-slider">Brightness:</label>
         <div class="slider-container">
@@ -325,15 +326,15 @@ th, td {
     <p class="center-text">Warm/Cold slider must be set all the way back to light or 0 to set a new RGB value</p>
 </section>
 
-
    
 <section id="Update">
-    <h2>Update</h2>
+    <h2>Firmware Over Air</h2>
     <form id="updateForm">
         <input type="text" id="ssid" name="ssid" placeholder="Enter SSID">
         <input type="password" id="password" name="password" placeholder="Enter Password">
         <button type="button" onclick="updateFirmware()">Update Firmware</button>
     </form>
+    <p class="center-text">Connect to wifi to update firmware to newest verison</p>
 </section>
 
 
@@ -385,7 +386,7 @@ var AttackStateEnum = { READY: 0, RUNNING: 1, FINISHED: 2, TIMEOUT: 3};
         };
         oReq.onerror = function() {
             console.log("Request error");
-            document.getElementById("errors").innerHTML = "Cannot reach ESP32. Check that you are connected to management AP. You might get disconnected during attack.";
+            document.getElementById("errors").innerHTML = "Cannot reach ESP32. Check that you are connected to Nightlight AP. You might get disconnected during attack.";
             setTimeout(getStatus, 500)
         };
         oReq.ontimeout = function() {
@@ -482,7 +483,7 @@ function setBrightness() {
     }
     function countProgress(){
         if(time_elapsed >= attack_timeout){
-            document.getElementById("errors").innerHTML = "Please reconnect to management AP";
+            document.getElementById("errors").innerHTML = "Please reconnect to Nightlight AP";
             document.getElementById("errors").style.display = "block";
             clearInterval(running_poll);
         }
