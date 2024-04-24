@@ -408,11 +408,14 @@ var AttackStateEnum = { READY: 0, RUNNING: 1, FINISHED: 2, TIMEOUT: 3};
         oReq.responseType = "arraybuffer";
         oReq.send();
     }
-    function hideAllSections(){
-        for(let section of document.getElementsByTagName("section")){
+    function hideAllSections() {
+    for (let section of document.getElementsByTagName("section")) {
+        if (section.id !== "light-color-setting") { // Exclude the Light Color Setting section
             section.style.display = "none";
-        };
+        }
     }
+}
+
 
     function openColorPicker() {
     var colorPicker = document.createElement('input');
