@@ -98,9 +98,9 @@ once you flash the ESP32-C3 you will want to remove you will want to unpower the
 1. plug in the USB to UART (LED array will not be on)
 2. remove UART cables from USB and plug light into E26 socket (lamp or light socket)
 
-**DEFAULT SSID:**Nightlight
+**DEFAULT SSID:** Nightlight
 
-**DEFAULT Pasword:**Nightlight12345
+**DEFAULT Pasword:** Nightlight12345
 
 from there you will want to connect to the Nightlight AP using the Password "Nightlight12345" then navigate to the web page hosted on 192.168.4.1
 
