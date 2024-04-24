@@ -118,7 +118,7 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
         Serial.println("Missing or invalid brightness parameter.");
         return ESP_FAIL;
     }
-    int brightness = constrain(String(brightness_json->valuestring).toInt(), 0, 255);
+    int brightness = constrain(String(brightness_json->valuestring).toInt(), 0, 1024);
 
     // Check if warm value is provided
     cJSON *warm_json = cJSON_GetObjectItemCaseSensitive(root, "warm");
@@ -126,8 +126,8 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
         int warm = String(warm_json->valuestring).toInt();
         if (warm > 0) {
             // Scale warm value
-            warm = constrain(warm, 0, 255);
-            int warm_pin_value = map(warm, 0, 255, 0, 1024);
+            warm = constrain(warm, 0, 1024);
+            int warm_pin_value = warm;
 
             ledcWrite(0, 0);
             ledcWrite(1, 0);
