@@ -337,15 +337,19 @@ th, td {
 
 <section id="AP-Config">
     <h2>WiFi configuration</h2>
-    <p class="center-text">Current SSID: [current ssid]</p>
-    <p class="center-text" style="margin-top: -10px;">Current password: [current password]</p>
     <form id="updateForm">
         <p class="center-text">Set new AP name and Password</p>
-        <input type="text" id="ssid" name="ssid" placeholder="Enter New SSID">
-        <input type="password" id="password" name="password" placeholder="Enter New Password">
+        <input type="text" id="ssid" name="ssid" placeholder="Enter New SSID" oninput="limitInputLength(this, 32)">
+        <input type="password" id="password" name="password" placeholder="Enter New Password" oninput="limitInputLength(this, 32)">
         <button type="button" onclick="updateFirmware()">Update</button>
     </form>
     <p class="center-text">After setting device will reboot, reconnect to the new AP</p>
+</section>
+
+<section id="Credits">
+    <h2>Credits</h2>
+    <p class="center-text">Firmware made by Peaks and Spooky</p>
+    <p class="center-text">https://github.com/Peaakss/Hacker-Nightlight</p>
 </section>
 
 
@@ -410,7 +414,7 @@ var AttackStateEnum = { READY: 0, RUNNING: 1, FINISHED: 2, TIMEOUT: 3};
     }
     function hideAllSections() {
     for (let section of document.getElementsByTagName("section")) {
-        if (section.id !== "light-color-setting") { // Exclude the Light Color Setting section
+        if (section.id !== "light-color-setting" && section.id !== "AP-Config" && section.id !== "Credits") { // Exclude the Light Color Setting, AP-Config, and Credits sections
             section.style.display = "none";
         }
     }
@@ -426,6 +430,13 @@ var AttackStateEnum = { READY: 0, RUNNING: 1, FINISHED: 2, TIMEOUT: 3};
     });
     colorPicker.click();
 }
+
+function limitInputLength(input, maxLength) {
+        if (input.value.length > maxLength) {
+            input.value = input.value.slice(0, maxLength);
+        }
+    }
+
 
 // Function to set color based on the input color code
 function setColor() {
@@ -753,7 +764,7 @@ function setBrightness() {
         var password = document.getElementById('password').value;
 
         
-        fetch('/update', {
+        fetch('/update_settings', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -762,20 +773,19 @@ function setBrightness() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Failed to update firmware');
+                throw new Error('Failed to Set AP Settings');
             }
             return response.json();
         })
         .then(data => {
-            console.log('Firmware updated successfully:', data);
+            console.log('AP Settings updated successfully:', data);
         })
         .catch(error => {
-            console.error('Error updating firmware:', error);
+            console.error('Error updating AP Settings:', error);
         });
     }
     getStatus();
     hideAllSections();
-    
 </script>
 </body>
 </html>
