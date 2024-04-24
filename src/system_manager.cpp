@@ -20,9 +20,8 @@ void SystemManager::SetupSystem()
     ledcAttachPin(7, 2); // Green
     ledcAttachPin(3, 3); // warm
     ledcAttachPin(4, 4); // cold
-    ledcWrite(0, 1000);
-    ledcWrite(1, 1000);
-    ledcWrite(2, 1000);
+    ledcWrite(3, 500);
+    ledcWrite(4, 1000);
     wslBypasserInterface = new wslbypasser();
     frameAnalyzerInterface = new frame_analyzer();
     hccapxInterface = new hccapx_serializer();
