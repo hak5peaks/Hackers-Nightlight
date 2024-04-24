@@ -335,17 +335,6 @@ th, td {
     <p class="center-text">Warm/Cold slider must be set all the way back to light or 0 to set a new RGB value</p>
 </section>
 
-<section id="AP-Config">
-    <h2>WiFi configuration</h2>
-    <form id="updateForm">
-        <p class="center-text">Set new AP name and Password</p>
-        <input type="text" id="ssid" name="ssid" placeholder="Enter New SSID" oninput="limitInputLength(this, 32)">
-        <input type="password" id="password" name="password" placeholder="Enter New Password" oninput="limitInputLength(this, 32)">
-        <button type="button" onclick="updateFirmware()">Update</button>
-    </form>
-    <p class="center-text">After setting device will reboot, reconnect to the new AP</p>
-</section>
-
 <section id="Credits">
     <h2>Credits</h2>
     <p class="center-text">Firmware made by Peaks and Spooky</p>
@@ -414,11 +403,12 @@ var AttackStateEnum = { READY: 0, RUNNING: 1, FINISHED: 2, TIMEOUT: 3};
     }
     function hideAllSections() {
     for (let section of document.getElementsByTagName("section")) {
-        if (section.id !== "light-color-setting" && section.id !== "AP-Config" && section.id !== "Credits") { // Exclude the Light Color Setting, AP-Config, and Credits sections
+        if (section.id !== "light-color-setting" && section.id !== "Credits") { // Exclude the Light Color Setting and Credits sections
             section.style.display = "none";
         }
     }
 }
+
 
 
     function openColorPicker() {
