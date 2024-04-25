@@ -33,6 +33,8 @@ With many open source firmwares public on github such as https://github.com/risi
 
 Searching Amazon endless for models using ESP32 chips within their hardware I stumbled upon Vonts Smart Light Pro. 
 
+the 2 models vulnerable to this are Vont Color Pro SLB04 and the Vont Color SLB02
+
 This model of smart light specifically uses a ESP32-C3 with 4 MB of flash. 
 
 ![Capture0](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/fb5a3753-264c-4b97-b2f8-340ebefa2709) (C3 on light connected to UART)
