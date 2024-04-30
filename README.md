@@ -117,5 +117,6 @@ Click the box, this is give you a color picker to select a RGB code for the ligh
 
 YOU CANNOT HAVE RBG AND WARM/COLD LIGHTS ON AT THE SAME TIME, if you move the warm/cold slider it will turn on the warm/cold lights, to turn RBG back on slide it back and the RBG will turn back on
 
+Tiktok Demo: https://www.tiktok.com/@o.mg_peaks/video/7360587336507280683
 
 # [Big thanks to https://github.com/Spooks4576 for assisting in the creation of the firmware]
