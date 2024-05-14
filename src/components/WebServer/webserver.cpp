@@ -9,6 +9,7 @@
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 #include <main/cJSON.h>
+#include <drivers/wyze/bp575.h>
 
 #define RED_PIN 6
 #define GREEN_PIN 7
@@ -129,22 +130,44 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
             warm = constrain(warm, 0, 1024);
             int warm_pin_value = warm;
 
-            ledcWrite(0, 0);
-            ledcWrite(1, 0);
-            ledcWrite(2, 0);
+            if (SystemManager::getInstance().BulbType == Vont)
+            {
+                ledcWrite(0, 0);
+                ledcWrite(1, 0);
+                ledcWrite(2, 0);
 
-            // Set warm pins
-            Serial.println("Setting warm light intensity");
-            ledcWrite(3, warm_pin_value);
-            ledcWrite(4, brightness);  // Make sure cold light is off
+                // Set warm pins
+                Serial.println("Setting warm light intensity");
+                ledcWrite(3, warm_pin_value);
+                ledcWrite(4, brightness);  // Make sure cold light is off
+            }
+            else if (SystemManager::getInstance().BulbType == Wyze)
+            {
+                SystemManager::getInstance().WyzeDriver->set_channel_value(1, 0);
+                SystemManager::getInstance().WyzeDriver->set_channel_value(2, 0);
+                SystemManager::getInstance().WyzeDriver->set_channel_value(3, 0);
+
+
+                Serial.println("Setting warm light intensity");
+                SystemManager::getInstance().WyzeDriver->set_channel_value(3, warm_pin_value);
+            }
+
+           
             cJSON_Delete(root); // Cleanup cJSON
             httpd_resp_send(req, NULL, 0); // Send response
             return ESP_OK; // Return success
         }
     }
 
-    ledcWrite(3, 0);
-    ledcWrite(4, 0);
+    if (SystemManager::getInstance().BulbType == Vont)
+    {
+        ledcWrite(3, 0);
+        ledcWrite(4, 0);
+    }
+    else if (SystemManager::getInstance().BulbType == Wyze)
+    {
+        SystemManager::getInstance().WyzeDriver->set_channel_value(4, 0);
+    }
 
     // If warm light value is not provided or is 0, set RGB values
     cJSON *rgb_json = cJSON_GetObjectItemCaseSensitive(root, "rgb");
@@ -165,11 +188,22 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
     green = map(green, 0, 255, 0, brightness);
     blue = map(blue, 0, 255, 0, brightness);
 
-    // Set RGB values using ledcWrite
-    Serial.println("Setting RGB values");
-    ledcWrite(0, blue);
-    ledcWrite(1, red);
-    ledcWrite(2, green);
+
+    if (SystemManager::getInstance().BulbType == Vont)
+    {
+        // Set RGB values using ledcWrite
+        Serial.println("Setting RGB values");
+        ledcWrite(0, blue);
+        ledcWrite(1, red);
+        ledcWrite(2, green);
+    }
+    else if (SystemManager::getInstance().BulbType == Wyze)
+    {
+        Serial.println("Setting RGB values");
+        SystemManager::getInstance().WyzeDriver->set_channel_value(1, blue);
+        SystemManager::getInstance().WyzeDriver->set_channel_value(2, green);
+        SystemManager::getInstance().WyzeDriver->set_channel_value(3, red);
+    }
 
     // Cleanup cJSON
     cJSON_Delete(root);

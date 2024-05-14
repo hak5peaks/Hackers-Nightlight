@@ -9,6 +9,14 @@ class hccapx_serializer;
 class frame_analyzer;
 class wslbypasser;
 class wifi_controller;
+class BP5758D;
+
+
+enum LightBulbType
+{
+    Vont,
+    Wyze
+};
 
 
 class SystemManager {
@@ -24,7 +32,10 @@ public:
     frame_analyzer* frameAnalyzerInterface;
     wslbypasser* wslBypasserInterface;
     wifi_controller* wificontrollerInterface;
+    BP5758D* WyzeDriver;
+    LightBulbType BulbType;
 
     void SetupSystem();
     void loop();
+    void SetupLights(LightBulbType Type);
 };

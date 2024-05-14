@@ -7,21 +7,50 @@
 #include <components/wifi_controller/wifi_controller.h>
 #include <WiFi.h>
 #include "main/attack.h"
+#include <drivers/wyze/bp575.h>
+
+#define V2LIGHT
+
+
+void SystemManager::SetupLights(LightBulbType Type)
+{
+    switch (Type)
+    {
+        case LightBulbType::Vont:
+        {
+            ledcSetup(0, 5000, 10);
+            ledcSetup(1, 5000, 10);
+            ledcSetup(2, 5000, 10);
+            ledcSetup(3, 5000, 10);
+            ledcSetup(4, 5000, 10);
+            ledcAttachPin(5, 0); // Blue
+            ledcAttachPin(6, 1); // Red
+            ledcAttachPin(7, 2); // Green
+            ledcAttachPin(3, 3); // warm
+            ledcAttachPin(4, 4); // cold
+            ledcWrite(3, 500);
+            ledcWrite(4, 1000);
+        }
+
+        case LightBulbType::Wyze:
+        {
+            WyzeDriver = new BP5758D();
+            WyzeDriver->setup(19, 18);
+        }
+
+    }
+
+    BulbType = Type;
+}
 
 void SystemManager::SetupSystem()
 {
-    ledcSetup(0, 5000, 10);
-    ledcSetup(1, 5000, 10);
-    ledcSetup(2, 5000, 10);
-    ledcSetup(3, 5000, 10);
-    ledcSetup(4, 5000, 10);
-    ledcAttachPin(5, 0); // Blue
-    ledcAttachPin(6, 1); // Red
-    ledcAttachPin(7, 2); // Green
-    ledcAttachPin(3, 3); // warm
-    ledcAttachPin(4, 4); // cold
-    ledcWrite(3, 500);
-    ledcWrite(4, 1000);
+
+#ifdef V2LIGHT
+SetupLights(Wyze);
+#else 
+SetupLights(Vont);
+#endif
     wslBypasserInterface = new wslbypasser();
     frameAnalyzerInterface = new frame_analyzer();
     hccapxInterface = new hccapx_serializer();
