@@ -119,4 +119,21 @@ YOU CANNOT HAVE RBG AND WARM/COLD LIGHTS ON AT THE SAME TIME, if you move the wa
 
 Tiktok Demo: https://www.tiktok.com/@o.mg_peaks/video/7360587336507280683
 
+# Wyze Bulb Color (WLPA19CV2) 
+
+The Wyze bulb colors use the exact same MCU as the vont color lights. ESP32-C3, however have a diffrent flashing process.
+
+![IMG_1663](https://github.com/hak5peaks/Hackers-Nightlight/assets/115900893/f475e295-e994-411f-8fcc-7a32f0029c96)
+
+rather then grounding a single GPIO pin to set the chip into boot loader, these bulbs require that GIO8 needs to be set to high (jump to 3.3v) and GPO9 needs to be grounded
+
+```
+GIO8 -> HIGH
+GIO9 -> LOW
+```
+
+Flash process remains the same.
+
+## THESE LIGHTS USE BP5758 LED DRIVER, THERE IS NO SUPPORT CURRENTLY IN THE FIRMWARE SO THE LIGHTS WILL NOT WORK
+
 # [Big thanks to https://github.com/Spooks4576 for assisting in the creation of the firmware]
