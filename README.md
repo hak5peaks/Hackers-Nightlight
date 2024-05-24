@@ -103,7 +103,7 @@ once you flash the ESP32-C3 you will want to remove you will want to unpower the
 
 **DEFAULT SSID:** Nightlight
 
-**DEFAULT Pasword:** Nightlight12345
+**DEFAULT Password:** Nightlight12345
 
 from there you will want to connect to the Nightlight AP using the Password "Nightlight12345" then navigate to the web page hosted on 192.168.4.1
 
