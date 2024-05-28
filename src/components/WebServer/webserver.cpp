@@ -150,6 +150,8 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
 
                 Serial.println("Setting warm light intensity");
                 SystemManager::getInstance().WyzeDriver->set_channel_value(3, warm_pin_value);
+
+                SystemManager::getInstance().WyzeDriver->update();
             }
 
            
@@ -167,6 +169,7 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
     else if (SystemManager::getInstance().BulbType == Wyze)
     {
         SystemManager::getInstance().WyzeDriver->set_channel_value(4, 0);
+        SystemManager::getInstance().WyzeDriver->update();
     }
 
     // If warm light value is not provided or is 0, set RGB values
@@ -203,6 +206,7 @@ esp_err_t WebServer::uri_gpio_led_handler(httpd_req_t *req) {
         SystemManager::getInstance().WyzeDriver->set_channel_value(1, blue);
         SystemManager::getInstance().WyzeDriver->set_channel_value(2, green);
         SystemManager::getInstance().WyzeDriver->set_channel_value(3, red);
+        SystemManager::getInstance().WyzeDriver->update();
     }
 
     // Cleanup cJSON
