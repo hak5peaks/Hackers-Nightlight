@@ -4,6 +4,7 @@
 
 the Wi-Fi hacking light bulb ( More models coming soon )
 
+
 # Context
 
 The Hacker night light project is meant to show the attack possibilities and vulnerabilities with smart light bulbs.
@@ -80,6 +81,8 @@ Once connected we are able to read and write to the flash
 # Flashing 
 
 Donwload the Flashtool from https://www.espressif.com/en/support/download/other-tools 
+
+DO NOT FLASH WHILE OR PLUG IN USB ADAPTER WHILE LIGHTBULB IS ON 120V or 240V POWER SOURCE!!! 
 
 when opening the flashtool, you will want to set Chiptype to ESP32-C3 and make sure WorkMode is on Develop and LoadMode is on UART
 
