@@ -13,6 +13,20 @@ The Hacker night light project is meant to show the attack possibilities and vul
 WiFi-connected smart lights are modern lighting solutions that you can control with your phone or voice commands. They work by connecting to your home WiFi network, allowing you to adjust them remotely. You can change the brightness, color, and even set schedules for when they turn on or off. They're easy to install and can be used in various forms like bulbs or light strips. Plus, they help save energy and add convenience to your home by letting you customize your lighting preferences easily.
 
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6d3e3b2f-939f-49c1-91ad-322a55c86a11" alt="Centered Image" width="200"/>
+</p>
+
+<h1 align="center">Announcing Hackers Nightlight V2</h1>
+
+<p align="center">Hackers nightlight V2 is inspired by the open source project's idea of creating a covert penetration testing tool to help uncover hardware vulnerabilities, test network security and response readiness. </p>
+
+<p align="center">Hackers nightlight V2 brings new custom hardware packed inside of the same discrete light bulb format, containing a brand new webUI with focus on ease of use, and a suite of new abilities and tools.  </p>
+
+<p align="center">Learn more here: https://hackersnightlight.com </p>
+
+
+
 lights often use simple WiFi-enabled microcontrollers to manage connections and control the LED arrays. These microcontrollers are like tiny computers embedded within the smart light system. They handle tasks such as connecting to your home WiFi network, communicating with your smartphone or other devices, and controlling the LEDs
 
 ![Untitled-5](https://github.com/Peaakss/Hacker-Nightlight/assets/115900893/72595671-05d8-4ed1-a157-279d740cc9cb) (Govee ‎B60081C3)
