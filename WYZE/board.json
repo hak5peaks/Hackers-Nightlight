@@ -1,0 +1,21 @@
+{
+  "name": "WYZE",
+  "display_name": "Wyze Bulb Color (WLPA19CV2)",
+  "mcu": "ESP32-C3",
+  "pio_board": "lolin_c3_mini",
+  "led": {
+    "driver": "bus",
+    "led_control_enabled": false,
+    "disabled_notice": "Light color control isn't available on this bulb yet.",
+    "bus": {
+      "sda_pin": 19,
+      "scl_pin": 18,
+      "channel_order": "RGB",
+      "white_channels": 1,
+      "boot_white_brightness": 240
+    },
+    "extra_pwm": {
+      "enabled": false
+    }
+  }
+}

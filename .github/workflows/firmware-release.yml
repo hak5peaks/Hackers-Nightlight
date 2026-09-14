@@ -1,0 +1,69 @@
+name: Firmware release
+
+# On pushing a tag like v1.2.3, builds every supported board and attaches its binaries
+# (bootloader/partitions/firmware, each named after the board) to a GitHub Release for
+# that tag - so someone can flash a bulb with just `esptool`, no PlatformIO required.
+#
+# Adding a new board? Add its env name to the `board:` matrix below (and to the one in
+# firmware-build.yml) - see .claude/skills/new-bulb or firmware/README.md.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ github.ref_name }}" --title "${{ github.ref_name }}" --generate-notes
+
+  build-and-upload:
+    needs: create-release
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [orein, vont, wyze, razer]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: platformio-${{ runner.os }}
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Build ${{ matrix.board }}
+        working-directory: firmware
+        run: pio run -e ${{ matrix.board }}
+
+      - name: Name outputs after the board
+        working-directory: firmware/.pio/build/${{ matrix.board }}
+        run: |
+          mv firmware.bin ${{ matrix.board }}-firmware.bin
+          mv bootloader.bin ${{ matrix.board }}-bootloader.bin
+          mv partitions.bin ${{ matrix.board }}-partitions.bin
+
+      - name: Upload to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            firmware/.pio/build/${{ matrix.board }}/${{ matrix.board }}-firmware.bin \
+            firmware/.pio/build/${{ matrix.board }}/${{ matrix.board }}-bootloader.bin \
+            firmware/.pio/build/${{ matrix.board }}/${{ matrix.board }}-partitions.bin \
+            --clobber

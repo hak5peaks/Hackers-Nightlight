@@ -1,0 +1,64 @@
+name: Firmware build
+
+# Builds every supported board on every push/PR that touches firmware code or a
+# board.json, and uploads each board's binaries as a downloadable artifact - so a PR's
+# build can be flashed and tried without merging it first.
+#
+# Adding a new board? Add its env name to the `board:` matrix below (and to the one in
+# firmware-release.yml) - see .claude/skills/new-bulb or firmware/README.md.
+
+on:
+  push:
+    paths:
+      - "firmware/**"
+      - "**/board.json"
+      - ".github/workflows/firmware-build.yml"
+  pull_request:
+    paths:
+      - "firmware/**"
+      - "**/board.json"
+      - ".github/workflows/firmware-build.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [orein, vont, wyze, razer]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: platformio-${{ runner.os }}
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Build ${{ matrix.board }}
+        working-directory: firmware
+        run: pio run -e ${{ matrix.board }}
+
+      - name: Name outputs after the board
+        working-directory: firmware/.pio/build/${{ matrix.board }}
+        run: |
+          mv firmware.bin ${{ matrix.board }}-firmware.bin
+          mv bootloader.bin ${{ matrix.board }}-bootloader.bin
+          mv partitions.bin ${{ matrix.board }}-partitions.bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.board }}-firmware
+          path: |
+            firmware/.pio/build/${{ matrix.board }}/${{ matrix.board }}-firmware.bin
+            firmware/.pio/build/${{ matrix.board }}/${{ matrix.board }}-bootloader.bin
+            firmware/.pio/build/${{ matrix.board }}/${{ matrix.board }}-partitions.bin
+          if-no-files-found: error
+          retention-days: 14

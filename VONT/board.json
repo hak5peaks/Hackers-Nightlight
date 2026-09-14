@@ -1,0 +1,23 @@
+{
+  "name": "VONT",
+  "display_name": "Vont Color Pro/SLB01/SLB02/SLB04 Smart Light",
+  "mcu": "ESP32-C3",
+  "pio_board": "lolin_c3_mini",
+  "led": {
+    "driver": "pwm_direct",
+    "led_control_enabled": true,
+    "white_label": "Warm/Cold:",
+    "white_notice": "Warm/Cold slider must be set all the way back to light or 0 to set a new RGB value",
+    "pwm_direct": {
+      "blue_pin": 5,
+      "red_pin": 6,
+      "green_pin": 7,
+      "warm_pin": 3,
+      "cold_pin": 4,
+      "white_channels": 2
+    },
+    "extra_pwm": {
+      "enabled": false
+    }
+  }
+}

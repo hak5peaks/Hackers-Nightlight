@@ -1,0 +1,15 @@
+{
+  "name": "RAZER",
+  "display_name": "Razer Aether Light Bulb (RZ43-042501) — unconfirmed, no teardown yet",
+  "mcu": "TODO_UNKNOWN",
+  "pio_board": "lolin_c3_mini",
+  "led": {
+    "driver": "none",
+    "led_control_enabled": false,
+    "disabled_notice": "LED control isn't supported on this bulb yet.",
+    "extra_pwm": {
+      "enabled": false
+    }
+  },
+  "todo": true
+}

@@ -1,0 +1,21 @@
+{
+  "name": "OREIN",
+  "display_name": "OREiN A19 RGBTW Matter Smart Bulb",
+  "mcu": "ESP32-C3FH4",
+  "pio_board": "lolin_c3_mini",
+  "led": {
+    "driver": "bus",
+    "led_control_enabled": true,
+    "white_label": "White:",
+    "bus": {
+      "sda_pin": 6,
+      "scl_pin": 7,
+      "channel_order": "BGR",
+      "white_channels": 1,
+      "boot_white_brightness": 240
+    },
+    "animations": {
+      "enabled": true
+    }
+  }
+}
